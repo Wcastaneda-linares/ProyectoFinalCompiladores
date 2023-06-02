@@ -1,0 +1,135 @@
+package Clases;
+import java_cup.runtime.*;
+import java.util.Hashtable;
+import Tablas.TablaSimbolos;
+import traductor.Traducir;
+
+
+parser code
+{:
+    /**Metodo al que se llama automáticamente ante algún error sintactico.*/
+    public void syntax_error(Symbol s){
+        System.out.println("Error Sintactico en la Línea " +(s.right+1) + ". Identificador "
+        +s.value + " no se reconoce la expresion." );
+    }
+
+    /**Metodo al que se llama en el momento en que ya no es posible una recuperación de
+    errores.*/
+    public void unrecovered_syntax_error(Symbol s) throws java.lang.Exception{
+    //   System.out.println("Error Sintactico en la Línea " + (s.right+1)+ ". Identificador " +
+     //   s.value + " no se reconoce la expresion.");
+    }
+
+
+:}
+
+
+action code
+{:
+TablaSimbolos tablasimbolos=new TablaSimbolos();
+Traducir tra=new Traducir();
+:}
+
+terminal 
+sustantivo;
+  
+terminal
+adjetivos,
+adj_posesivo,
+adj_demostrativo,
+adj_calificativo,
+adj_numeral_cardinal,
+adj_numeral_ordinal,
+adj_indefinido;
+  
+terminal 
+art_definido,
+art_indefinido;
+  
+terminal 
+  pro_personal,
+  pro_numeral,
+  pro_demostrativo,
+  pro_interrogativo;
+  
+terminal
+  ver_irregular_infinito,
+  ver_irregular_pasadosimple,
+  ver_irregular_pasadoparticipio;
+  
+terminal
+  verbo_regular;
+  
+terminal
+  advio_tiempo,
+  advio_lugar,
+  advio_cantidad,
+  advio_modo,
+  advio_afirmacion,
+  advio_negacion,
+  advio_duda;
+  
+terminal
+  preposicion;
+  
+terminal
+  conjun_coor_copulativa,
+  conjun_coor_adversativa,
+  conjun_coor_distributiva,
+  conjun_coor_disyuntiva,
+  conjun_coor_explicativa;
+  
+terminal
+  conjun_subor_condicional,
+  conjun_subor_causal,
+  conjun_subor_consecutiva,
+  conjun_subor_consesiva,
+  conjun_subor_comparativa,
+  conjun_subor_final;
+  
+terminal
+  interjeccion,
+  contraccion;
+
+terminal
+  punto, 
+  coma,
+  puntocoma,
+  dospuntos,
+  interrogacionabierto,
+  interrogacioncerrado,
+  admiracionabierto,
+  admiracioncerrado,
+  parentesisabierto,
+  parentesiscerrado,
+  corcheteabierto,
+  corchetecerrado,
+  guion,
+  asterisco,
+  diagonal,
+  pregunta;
+  
+terminal aux_futuro;
+terminal ver_ing;
+
+non terminal INICIAL,REGLA, REGLAS;
+
+start with INICIAL;
+
+INICIAL::= REGLA;
+
+
+
+
+REGLA::=REGLA REGLAS
+|REGLAS;
+
+REGLAS ::= pro_personal:a aux_futuro:b verbo_regular:c {:tra.tobeafirmacion(a.toString().toLowerCase()+" "+b.toString().toLowerCase()+" "+c.toString().toLowerCase());:}
+|pro_personal:a aux_futuro:b advio_negacion:c verbo_regular:d {:tra.tobenegacion(a.toString().toLowerCase()+" "+b.toString().toLowerCase()+" "+c.toString().toLowerCase()+" "+d.toString().toLowerCase());:}
+|aux_futuro:a pro_personal:b verbo_regular:c interrogacioncerrado {:tra.tobepregunta(a.toString().toLowerCase()+" "+b.toString().toLowerCase()+" "+c.toString().toLowerCase());:}
+
+|pro_personal:a aux_futuro:b verbo_regular:c advio_tiempo:d {:tra.simpleafir(a.toString().toLowerCase()+" "+b.toString().toLowerCase()+" "+c.toString().toLowerCase()+" "+d.toString().toLowerCase());:}
+|pro_personal:a aux_futuro:b advio_negacion:c verbo_regular:d advio_tiempo:e  {:tra.simplenega(a.toString().toLowerCase()+" "+b.toString().toLowerCase()+" "+c.toString().toLowerCase()+" "+d.toString().toLowerCase()+" "+e.toString().toLowerCase());:}
+|aux_futuro:a pro_personal:b verbo_regular:c advio_tiempo:d {:tra.simplepregunta(a.toString().toLowerCase()+" "+b.toString().toLowerCase()+" "+c.toString().toLowerCase()+" "+d.toString().toLowerCase());:}
+
+;
